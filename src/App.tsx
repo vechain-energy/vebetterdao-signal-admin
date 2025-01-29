@@ -1,12 +1,13 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Provider } from 'urql';
-import { useWallet,useWalletModal } from '@vechain/dapp-kit-react';
+import { useWallet, useWalletModal } from '@vechain/dapp-kit-react';
 import { client } from './lib/graphql';
 import { SignalsTable } from './components/SignalsTable';
 import { AppSelector } from './components/AppSelector';
 import { AdminActions } from './components/AdminActions';
 import { Footer } from './components/Footer';
 import { LayoutGrid } from 'lucide-react';
+import { WalletButton } from '@vechain/dapp-kit-react';
 
 function AdminInterface() {
   const [selectedApp, setSelectedApp] = useState<string>();
@@ -40,7 +41,7 @@ function AdminInterface() {
             <div className="flex items-center">
               {account ? (
                 <span className="text-sm text-gray-600">
-                  {account.slice(0, 6)}...{account.slice(-4)}
+                  <WalletButton />
                 </span>
               ) : (
                 <button
