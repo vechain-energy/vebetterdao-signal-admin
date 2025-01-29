@@ -4,6 +4,7 @@ import react from '@vitejs/plugin-react';
 export default defineConfig({
   plugins: [react()],
   optimizeDeps: {
+    include: ['mersenne-twister'],
     exclude: ['lucide-react'],
     esbuildOptions: {
       define: {
