@@ -37,6 +37,37 @@ export const SIGNALS_QUERY = `
   }
 `;
 
+export const SIGNAL_RESETS_QUERY = `
+  query SignalResets($first: Int!, $skip: Int!, $where: UserSignalsResetForApp_filter) {
+    userSignalsResetForApps(
+      first: $first
+      skip: $skip
+      orderBy: timestamp
+      orderDirection: desc
+      where: $where
+    ) {
+      id
+      previousSignalCount
+      reason
+      transaction {
+        id
+      }
+      timestamp
+      user {
+        id
+        name
+      }
+      app {
+        name
+        id
+        metadata {
+          logoUrl
+        }
+      }
+    }
+  }
+`;
+
 export const APPS_QUERY = `
   query Apps {
     apps(orderBy: name, orderDirection: asc) {

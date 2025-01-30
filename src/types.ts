@@ -15,12 +15,21 @@ export interface Transaction {
   id: string;
 }
 
-export interface Signal {
+export interface BaseSignal {
   id: string;
-  signalCount: number;
   reason: string;
   timestamp: string;
   transaction: Transaction;
   user: User;
   app: App;
 }
+
+export interface Signal extends BaseSignal {
+  signalCount: number;
+}
+
+export interface SignalReset extends BaseSignal {
+  previousSignalCount: number;
+}
+
+export type SignalItem = Signal | SignalReset;

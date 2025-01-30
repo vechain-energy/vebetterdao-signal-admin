@@ -8,11 +8,15 @@ import { AdminActions } from './components/AdminActions';
 import { Footer } from './components/Footer';
 import { LayoutGrid } from 'lucide-react';
 import { WalletButton } from '@vechain/dapp-kit-react';
+import clsx from 'clsx';
+
+type TabType = 'signals' | 'resets';
 
 function AdminInterface() {
+  const { account } = useWallet();
   const [selectedApp, setSelectedApp] = useState<string>();
   const [selectedUser, setSelectedUser] = useState<string>();
-  const { account } = useWallet();
+  const [activeTab, setActiveTab] = useState<TabType>('signals');
   const modal = useWalletModal();
 
   const handleRemoveSignal = async (id: string) => {
@@ -26,35 +30,20 @@ function AdminInterface() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col">
-      <div className="bg-white shadow">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex">
-              <div className="flex-shrink-0 flex items-center">
-                <LayoutGrid className="h-8 w-8 text-orange-500" />
-                <span className="ml-2 text-xl font-bold text-gray-900">
-                  VeBetterDAO Signal Admin
-                </span>
-              </div>
-            </div>
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      <header className="bg-white shadow">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex items-center justify-between">
             <div className="flex items-center">
-              {account ? (
-                <span className="text-sm text-gray-600">
-                  <WalletButton />
-                </span>
-              ) : (
-                <button
-                  onClick={() => modal.open()}
-                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500"
-                >
-                  Connect Wallet
-                </button>
-              )}
+              <LayoutGrid className="h-8 w-8 text-orange-500" />
+              <h1 className="ml-3 text-2xl font-semibold text-gray-900">
+                VeBetterDAO Signal Admin
+              </h1>
             </div>
+            <WalletButton />
           </div>
         </div>
-      </div>
+      </header>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow">
         <div className="space-y-8">
@@ -81,10 +70,47 @@ function AdminInterface() {
             </div>
           </div>
 
-          <SignalsTable
-            selectedApp={selectedApp}
-            selectedUser={selectedUser}
-          />
+          <div className="bg-white shadow rounded-lg">
+            <div className="border-b border-gray-200">
+              <nav className="-mb-px flex">
+                <button
+                  onClick={() => setActiveTab('signals')}
+                  className={clsx(
+                    'w-32 py-4 px-1 text-center border-b-2 text-sm font-medium',
+                    activeTab === 'signals'
+                      ? 'border-orange-500 text-orange-600'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  )}
+                >
+                  Signals
+                </button>
+                <button
+                  onClick={() => setActiveTab('resets')}
+                  className={clsx(
+                    'w-32 py-4 px-1 text-center border-b-2 text-sm font-medium',
+                    activeTab === 'resets'
+                      ? 'border-orange-500 text-orange-600'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  )}
+                >
+                  Resets
+                </button>
+              </nav>
+            </div>
+
+            {activeTab === 'signals' ? (
+              <SignalsTable
+                selectedApp={selectedApp}
+                selectedUser={selectedUser}
+              />
+            ) : (
+              <SignalsTable
+                selectedApp={selectedApp}
+                selectedUser={selectedUser}
+                type="resets"
+              />
+            )}
+          </div>
 
           {account && (
             <AdminActions
@@ -94,17 +120,16 @@ function AdminInterface() {
           )}
         </div>
       </div>
+
       <Footer />
     </div>
   );
 }
 
-function App() {
+export default function App() {
   return (
     <Provider value={client}>
       <AdminInterface />
     </Provider>
   );
 }
-
-export default App;
