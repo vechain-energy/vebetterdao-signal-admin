@@ -39,7 +39,7 @@ export const SIGNALS_QUERY = `
 
 export const APPS_QUERY = `
   query Apps {
-    apps {
+    apps(orderBy: name, orderDirection: asc) {
       id
       name
       metadata {
