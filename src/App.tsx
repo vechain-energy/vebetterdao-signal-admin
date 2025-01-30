@@ -34,7 +34,7 @@ function AdminInterface() {
               <div className="flex-shrink-0 flex items-center">
                 <LayoutGrid className="h-8 w-8 text-orange-500" />
                 <span className="ml-2 text-xl font-bold text-gray-900">
-                  VeBetterDAO Admin
+                  VeBetterDAO Signal Admin
                 </span>
               </div>
             </div>
