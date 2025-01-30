@@ -17,6 +17,7 @@ export const SIGNALS_QUERY = `
     ) {
       id
       signalCount
+      reason
       transaction {
         id
       }
@@ -56,6 +57,7 @@ export const USER_QUERY = `
       userSignals {
         id
         signalCount
+        reason
         timestamp
         transaction {
           id

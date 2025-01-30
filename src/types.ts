@@ -18,6 +18,7 @@ export interface Transaction {
 export interface Signal {
   id: string;
   signalCount: number;
+  reason: string;
   timestamp: string;
   transaction: Transaction;
   user: User;

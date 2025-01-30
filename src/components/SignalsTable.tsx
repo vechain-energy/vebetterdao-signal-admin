@@ -172,24 +172,31 @@ export function SignalsTable({ selectedApp, selectedUser }: SignalsTableProps) {
         />
       ),
     }),
-    columnHelper.accessor('signalCount', {
-      header: 'Signal Count',
+    columnHelper.accessor('reason', {
+      header: 'Reason',
+      cell: (info) => {
+        const value = info.getValue();
+        return value ? (
+          <div className="max-w-[440px] truncate" title={value}>
+            {value}
+          </div>
+        ) : null;
+      },
     }),
     columnHelper.accessor('timestamp', {
       header: 'Date',
-      cell: (info) => format(new Date(parseInt(info.getValue()) * 1000), 'yyyy-MM-dd HH:mm:ss'),
-    }),
-    columnHelper.accessor('transaction.id', {
-      header: 'Transaction',
       cell: (info) => (
-        <a
-          href={`https://vechainstats.com/transaction/${info.getValue()}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-orange-500 hover:text-orange-600"
-        >
-          {`${info.getValue().slice(0, 6)}...${info.getValue().slice(-4)}`}
-        </a>
+        <div className="flex flex-col">
+          <span>{format(new Date(parseInt(info.getValue()) * 1000), 'yyyy-MM-dd HH:mm:ss')}</span>
+          <a
+            href={`https://vechainstats.com/transaction/${info.row.original.transaction.id}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-orange-500 hover:text-orange-600 text-xs"
+          >
+            {`${info.row.original.transaction.id.slice(0, 6)}...${info.row.original.transaction.id.slice(-4)}`}
+          </a>
+        </div>
       ),
     }),
     columnHelper.accessor('user.id', {
@@ -239,11 +246,10 @@ export function SignalsTable({ selectedApp, selectedUser }: SignalsTableProps) {
           <table className="w-full table-fixed divide-y divide-gray-200">
             <colgroup>
               <col className="w-[20%]" />
-              <col className="w-[20%]" />
-              <col className="w-[10%]" />
-              <col className="w-[25%]" />
-              <col className="w-[20%]" />
-              <col className="w-[5%]" />
+              <col className="w-[12%]" />
+              <col className="w-[43%]" />
+              <col className="w-[17%]" />
+              <col className="w-[8%]" />
             </colgroup>
             <thead className="bg-gray-50">
               {table.getHeaderGroups().map((headerGroup) => (
@@ -266,7 +272,7 @@ export function SignalsTable({ selectedApp, selectedUser }: SignalsTableProps) {
               {fetching ? (
                 Array.from({ length: pageSize }).map((_, index) => (
                   <tr key={index} className="h-[72px]">
-                    {Array.from({ length: 6 }).map((_, cellIndex) => (
+                    {Array.from({ length: 5 }).map((_, cellIndex) => (
                       <td key={cellIndex} className="px-6 py-4 whitespace-nowrap">
                         <div className="animate-pulse h-4 bg-gray-200 rounded"></div>
                       </td>
@@ -275,7 +281,7 @@ export function SignalsTable({ selectedApp, selectedUser }: SignalsTableProps) {
                 ))
               ) : signals.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="h-[720px] px-6 py-4 text-center text-gray-500 bg-white">
+                  <td colSpan={5} className="h-[720px] px-6 py-4 text-center text-gray-500 bg-white">
                     No signals found
                   </td>
                 </tr>
