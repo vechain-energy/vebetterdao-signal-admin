@@ -82,7 +82,7 @@ export function SignalsTable({ selectedApp, selectedUser, type = 'signals' }: Si
         "type": "string"
       }
     ],
-    "name": "resetUserSignalsByAppAdminWithReason",
+    "name": "resetUserSignalsByAppWithReason",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
