@@ -21,11 +21,18 @@ if (typeof window !== 'undefined') {
 
   // Polyfill for process
   if (!window.process) {
-    window.process = {
+    const browserProcess = {
       env: {},
-      nextTick: (fn: () => void) => setTimeout(fn, 0),
+      nextTick: (fn: () => void) => window.setTimeout(fn, 0),
       browser: true
     };
+
+    Object.defineProperty(window, 'process', {
+      value: browserProcess,
+      writable: true,
+      configurable: true,
+      enumerable: true
+    });
   }
 
   // Create a more permissive ethereum property descriptor

@@ -9,7 +9,7 @@ import {
 } from '@tanstack/react-table';
 import { format } from 'date-fns';
 import { ChevronLeft, ChevronRight, Trash2 } from 'lucide-react';
-import { SignalItem } from '../types';
+import { Signal, SignalItem, SignalReset } from '../types';
 import { SIGNALS_QUERY, SIGNAL_RESETS_QUERY } from '../lib/graphql';
 import { useNameLookup } from '../hooks/useNameLookup';
 import { useConnex } from '@vechain/dapp-kit-react';
@@ -96,6 +96,11 @@ interface SignalsTableProps {
   type?: 'signals' | 'resets';
 }
 
+interface SignalsQueryData {
+  userSignals?: Signal[];
+  userSignalsResetForApps?: SignalReset[];
+}
+
 export function SignalsTable({ selectedApp, selectedUser, type = 'signals' }: SignalsTableProps) {
   const [pageIndex, setPageIndex] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -144,7 +149,7 @@ export function SignalsTable({ selectedApp, selectedUser, type = 'signals' }: Si
     }
   }, [connex, selectedUserId]);
 
-  const [{ data, fetching, error }] = useQuery({
+  const [{ data, fetching, error }] = useQuery<SignalsQueryData>({
     query: type === 'signals' ? SIGNALS_QUERY : SIGNAL_RESETS_QUERY,
     variables: {
       first: pageSize,
@@ -162,7 +167,7 @@ export function SignalsTable({ selectedApp, selectedUser, type = 'signals' }: Si
     requestPolicy: 'cache-and-network',
   });
 
-  const items = type === 'signals' 
+  const items: SignalItem[] = type === 'signals'
     ? (data?.userSignals ?? EMPTY_ITEMS)
     : (data?.userSignalsResetForApps ?? EMPTY_ITEMS);
   const hasMore = items && items.length === pageSize;

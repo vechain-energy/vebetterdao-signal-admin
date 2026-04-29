@@ -1,6 +1,7 @@
 import './polyfills';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { DAppKitProvider } from '@vechain/dapp-kit-react';
 import App from './App';
 import './index.css';
@@ -10,6 +11,8 @@ if (!projectId) {
   throw new Error('Missing VITE_WALLET_CONNECT_PROJECT_ID environment variable');
 }
 
+const queryClient = new QueryClient();
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <DAppKitProvider
@@ -17,7 +20,9 @@ createRoot(document.getElementById('root')!).render(
       genesis="main"
       usePersistence={true}
     >
-      <App />
+      <QueryClientProvider client={queryClient}>
+        <App />
+      </QueryClientProvider>
     </DAppKitProvider>
   </StrictMode>
 );

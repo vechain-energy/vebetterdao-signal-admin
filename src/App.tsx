@@ -6,8 +6,7 @@ import { SignalsTable } from './components/SignalsTable';
 import { AppSelector } from './components/AppSelector';
 import { AdminActions } from './components/AdminActions';
 import { Footer } from './components/Footer';
-import { LayoutGrid } from 'lucide-react';
-import { WalletButton } from '@vechain/dapp-kit-react';
+import { Header } from './components/Header';
 import clsx from 'clsx';
 
 type TabType = 'signals' | 'resets';
@@ -18,11 +17,6 @@ function AdminInterface() {
   const [selectedUser, setSelectedUser] = useState<string>();
   const [activeTab, setActiveTab] = useState<TabType>('signals');
 
-  const handleRemoveSignal = async (id: string) => {
-    console.log('Removing signal:', id);
-    // To be implemented with dapp-kit
-  };
-
   const handleAddSignals = async (addresses: string[]) => {
     console.log('Adding signals for addresses:', addresses);
     // To be implemented with dapp-kit
@@ -30,19 +24,7 @@ function AdminInterface() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
-      <header className="bg-white shadow">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <LayoutGrid className="h-8 w-8 text-orange-500" />
-              <h1 className="ml-3 text-2xl font-semibold text-gray-900">
-                VeBetterDAO Signal Admin
-              </h1>
-            </div>
-            <WalletButton />
-          </div>
-        </div>
-      </header>
+      <Header />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow">
         <div className="space-y-8">
@@ -113,7 +95,6 @@ function AdminInterface() {
 
           {account && (
             <AdminActions
-              onRemoveSignal={handleRemoveSignal}
               onAddSignals={handleAddSignals}
             />
           )}
