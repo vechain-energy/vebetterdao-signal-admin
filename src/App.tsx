@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Provider } from 'urql';
-import { useWallet, useWalletModal } from '@vechain/dapp-kit-react';
+import { useWallet } from '@vechain/dapp-kit-react';
 import { client } from './lib/graphql';
 import { SignalsTable } from './components/SignalsTable';
 import { AppSelector } from './components/AppSelector';
@@ -17,7 +17,6 @@ function AdminInterface() {
   const [selectedApp, setSelectedApp] = useState<string>();
   const [selectedUser, setSelectedUser] = useState<string>();
   const [activeTab, setActiveTab] = useState<TabType>('signals');
-  const modal = useWalletModal();
 
   const handleRemoveSignal = async (id: string) => {
     console.log('Removing signal:', id);

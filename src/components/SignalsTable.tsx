@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { useQuery } from 'urql';
 import {
   createColumnHelper,
@@ -15,14 +15,33 @@ import { useNameLookup } from '../hooks/useNameLookup';
 import { useConnex } from '@vechain/dapp-kit-react';
 import { Modal } from './Modal';
 import clsx from 'clsx';
+import { transformIpfsUrl } from '../lib/url';
+import { useResolvedAppMetadata } from '../hooks/useResolvedAppMetadata';
+import { ResolvedAppMetadata } from '../lib/appMetadata';
 
 const columnHelper = createColumnHelper<SignalItem>();
-
-const transformIpfsUrl = (url: string): string => {
-  return url.startsWith('ipfs://')
-    ? `https://ipfs.io/ipfs/${url.slice(7)}`
-    : url;
+const EMPTY_ITEMS: SignalItem[] = [];
+const CONTRACT_ADDRESS = '0x35a267671d8EDD607B2056A9a13E7ba7CF53c8b3';
+const RESET_ABI = {
+  inputs: [
+    {
+      internalType: 'address',
+      name: 'user',
+      type: 'address',
+    },
+    {
+      internalType: 'string',
+      name: 'reason',
+      type: 'string',
+    },
+  ],
+  name: 'resetUserSignalsByAppWithReason',
+  outputs: [],
+  stateMutability: 'nonpayable',
+  type: 'function',
 };
+
+const formatShortId = (id: string): string => `${id.slice(0, 6)}...${id.slice(-4)}`;
 
 function UserCell({ userId, userName }: { userId: string; userName: string | null }) {
   const { names, loading } = useNameLookup([userId]);
@@ -53,6 +72,24 @@ function UserCell({ userId, userName }: { userId: string; userName: string | nul
   );
 }
 
+function AppCell({ app, metadata }: { app: SignalItem['app']; metadata?: ResolvedAppMetadata }) {
+  const logoUrl = metadata?.logoUrl;
+  const appName = metadata?.title || app.name || formatShortId(app.id);
+
+  return (
+    <div className="flex items-center gap-2 min-w-0" title={app.name || app.id}>
+      {logoUrl && (
+        <img
+          src={transformIpfsUrl(logoUrl)}
+          alt=""
+          className="w-6 h-6 rounded-full flex-shrink-0"
+        />
+      )}
+      <span className="truncate text-orange-500">{appName}</span>
+    </div>
+  );
+}
+
 interface SignalsTableProps {
   selectedApp?: string;
   selectedUser?: string;
@@ -66,27 +103,6 @@ export function SignalsTable({ selectedApp, selectedUser, type = 'signals' }: Si
   const [isRemoving, setIsRemoving] = useState<string | null>(null);
   const pageSize = 10;
   const connex = useConnex();
-
-  const CONTRACT_ADDRESS = '0x35a267671d8EDD607B2056A9a13E7ba7CF53c8b3';
-
-  const RESET_ABI = {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "user",
-        "type": "address"
-      },
-      {
-        "internalType": "string",
-        "name": "reason",
-        "type": "string"
-      }
-    ],
-    "name": "resetUserSignalsByAppWithReason",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  };
 
   const handleRemoveClick = useCallback((userId: string) => {
     setSelectedUserId(userId);
@@ -147,25 +163,20 @@ export function SignalsTable({ selectedApp, selectedUser, type = 'signals' }: Si
   });
 
   const items = type === 'signals' 
-    ? (data?.userSignals ?? [])
-    : (data?.userSignalsResetForApps ?? []);
+    ? (data?.userSignals ?? EMPTY_ITEMS)
+    : (data?.userSignalsResetForApps ?? EMPTY_ITEMS);
   const hasMore = items && items.length === pageSize;
+  const itemApps = useMemo(() => items.map((item) => item.app), [items]);
+  const metadataByAppId = useResolvedAppMetadata(itemApps);
 
   const columns = [
     columnHelper.accessor('app.name', {
       header: 'App',
       cell: (info) => (
-        <div className="flex justify-center">
-          {info.row.original.app.metadata?.logoUrl && (
-            <div className="w-6 h-6" title={info.getValue()}>
-              <img
-                src={transformIpfsUrl(info.row.original.app.metadata.logoUrl)}
-                alt={info.getValue()}
-                className="w-full h-full rounded-full"
-              />
-            </div>
-          )}
-        </div>
+        <AppCell
+          app={info.row.original.app}
+          metadata={metadataByAppId[info.row.original.app.id]}
+        />
       ),
     }),
     columnHelper.accessor('user.name', {

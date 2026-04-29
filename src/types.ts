@@ -1,9 +1,15 @@
 export interface App {
   id: string;
   name: string;
+  metadataURI?: string | null;
   metadata: {
-    logoUrl: string;
-  };
+    id?: string | null;
+    title?: string | null;
+    description?: string | null;
+    externalUrl?: string | null;
+    logoUrl?: string | null;
+    bannerUrl?: string | null;
+  } | null;
 }
 
 export interface User {

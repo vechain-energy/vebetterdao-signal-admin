@@ -1,6 +1,18 @@
 // Global polyfills to handle window.ethereum and Buffer
 import { Buffer } from 'buffer';
 
+declare global {
+  interface Window {
+    Buffer?: typeof Buffer;
+    process?: {
+      env: Record<string, string | undefined>;
+      nextTick: (fn: () => void) => number;
+      browser: true;
+    };
+    ethereum?: unknown;
+  }
+}
+
 if (typeof window !== 'undefined') {
   // Polyfill for Buffer
   if (!window.Buffer) {
@@ -11,14 +23,13 @@ if (typeof window !== 'undefined') {
   if (!window.process) {
     window.process = {
       env: {},
-      nextTick: (fn: Function) => setTimeout(fn, 0),
+      nextTick: (fn: () => void) => setTimeout(fn, 0),
       browser: true
-    } as any;
+    };
   }
 
   // Create a more permissive ethereum property descriptor
-  const _global = window as any;
-  if (!_global.ethereum) {
+  if (!window.ethereum) {
     try {
       Object.defineProperty(window, 'ethereum', {
         value: null,

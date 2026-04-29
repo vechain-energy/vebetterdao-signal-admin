@@ -29,8 +29,14 @@ export const SIGNALS_QUERY = `
       app {
         name
         id
+        metadataURI
         metadata {
+          id
+          title
+          description
+          externalUrl
           logoUrl
+          bannerUrl
         }
       }
     }
@@ -60,8 +66,14 @@ export const SIGNAL_RESETS_QUERY = `
       app {
         name
         id
+        metadataURI
         metadata {
+          id
+          title
+          description
+          externalUrl
           logoUrl
+          bannerUrl
         }
       }
     }
@@ -73,8 +85,14 @@ export const APPS_QUERY = `
     apps(orderBy: name, orderDirection: asc) {
       id
       name
+      metadataURI
       metadata {
+        id
+        title
+        description
+        externalUrl
         logoUrl
+        bannerUrl
       }
     }
   }

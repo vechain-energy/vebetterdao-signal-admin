@@ -2,13 +2,11 @@ import { useQuery } from 'urql';
 import { APPS_QUERY } from '../lib/graphql';
 import { App } from '../types';
 import { ChevronDown } from 'lucide-react';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
+import { transformIpfsUrl } from '../lib/url';
+import { useResolvedAppMetadata } from '../hooks/useResolvedAppMetadata';
 
-const transformIpfsUrl = (url: string): string => {
-  return url.startsWith('ipfs://')
-    ? `https://ipfs.io/ipfs/${url.slice(7)}`
-    : url;
-};
+const EMPTY_APPS: App[] = [];
 
 interface AppSelectorProps {
   value?: string;
@@ -23,7 +21,17 @@ export function AppSelector({ value, onChange }: AppSelectorProps) {
     requestPolicy: 'cache-and-network'
   });
 
-  const selectedApp = data?.apps?.find(app => app.id === value);
+  const apps = data?.apps ?? EMPTY_APPS;
+  const selectedApp = apps.find(app => app.id === value);
+  const appsToResolve = useMemo(() => {
+    if (isOpen) {
+      return apps;
+    }
+
+    return selectedApp ? [selectedApp] : EMPTY_APPS;
+  }, [apps, isOpen, selectedApp]);
+  const metadataByAppId = useResolvedAppMetadata(appsToResolve);
+  const selectedAppMetadata = selectedApp ? metadataByAppId[selectedApp.id] : undefined;
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -44,14 +52,14 @@ export function AppSelector({ value, onChange }: AppSelectorProps) {
         className="w-full rounded-md py-2.5 pl-4 pr-10 text-left text-gray-900 bg-white border border-gray-300 focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500 sm:text-sm"
       >
         <div className="flex items-center gap-2">
-          {selectedApp?.metadata?.logoUrl && (
+          {selectedAppMetadata?.logoUrl && (
             <img
-              src={transformIpfsUrl(selectedApp.metadata.logoUrl)}
+              src={transformIpfsUrl(selectedAppMetadata.logoUrl)}
               alt=""
               className="w-5 h-5 rounded-full flex-shrink-0"
             />
           )}
-          <span>{selectedApp?.name || 'All Apps'}</span>
+          <span>{selectedAppMetadata?.title || selectedApp?.name || 'All Apps'}</span>
         </div>
       </button>
       <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
@@ -71,7 +79,10 @@ export function AppSelector({ value, onChange }: AppSelectorProps) {
             >
               All Apps
             </button>
-            {data?.apps.map((app) => (
+            {apps.map((app) => {
+              const metadata = metadataByAppId[app.id];
+
+              return (
               <button
                 key={app.id}
                 onClick={() => {
@@ -80,16 +91,17 @@ export function AppSelector({ value, onChange }: AppSelectorProps) {
                 }}
                 className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 flex items-center gap-2"
               >
-                {app.metadata?.logoUrl && (
+                {metadata?.logoUrl && (
                   <img
-                    src={transformIpfsUrl(app.metadata.logoUrl)}
+                    src={transformIpfsUrl(metadata.logoUrl)}
                     alt=""
                     className="w-5 h-5 rounded-full flex-shrink-0"
                   />
                 )}
-                <span>{app.name}</span>
+                <span>{metadata?.title || app.name}</span>
               </button>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}
